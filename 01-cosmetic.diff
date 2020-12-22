@@ -1,0 +1,31 @@
+diff --git a/common/base.c b/common/base.c
+index 6c503732..79d65f1f 100644
+--- a/common/base.c
++++ b/common/base.c
+@@ -1473,7 +1473,7 @@ char *x264_param2string( x264_param_t *p, int b_res )
+     if( p->rc.i_rc_method == X264_RC_ABR || p->rc.i_rc_method == X264_RC_CRF )
+     {
+         if( p->rc.i_rc_method == X264_RC_CRF )
+-            s += sprintf( s, " crf=%.1f", p->rc.f_rf_constant );
++            s += sprintf( s, " crf=%.4f", p->rc.f_rf_constant );
+         else
+             s += sprintf( s, " bitrate=%d ratetol=%.1f",
+                           p->rc.i_bitrate, p->rc.f_rate_tolerance );
+diff --git a/encoder/encoder.c b/encoder/encoder.c
+index 356332a9..8cb73507 100644
+--- a/encoder/encoder.c
++++ b/encoder/encoder.c
+@@ -1794,6 +1794,13 @@ x264_t *x264_encoder_open( x264_param_t *param )
+     x264_log( h, X264_LOG_INFO, "profile %s, level %s, %s, %d-bit\n",
+               profile, level, subsampling[CHROMA_FORMAT], BIT_DEPTH );
+ 
++    char *opts = x264_param2string( &h->param, 0 );
++    if( opts )
++    {
++        x264_log( h, X264_LOG_INFO, "%s\n", opts );
++        x264_free( opts );
++    }
++
+     return h;
+ fail:
+     x264_free( h );

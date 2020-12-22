@@ -1,0 +1,106 @@
+diff --git a/common/base.c b/common/base.c
+index 79d65f1f..6ac32463 100644
+--- a/common/base.c
++++ b/common/base.c
+@@ -367,6 +367,7 @@ REALIGN_STACK void x264_param_default( x264_param_t *param )
+     param->i_fps_num       = 25;
+     param->i_fps_den       = 1;
+     param->i_level_idc     = -1;
++    param->b_level_force   = 0;
+     param->i_slice_max_size = 0;
+     param->i_slice_max_mbs = 0;
+     param->i_slice_count = 0;
+@@ -985,6 +986,8 @@ REALIGN_STACK int x264_param_parse( x264_param_t *p, const char *name, const cha
+         else
+             p->i_level_idc = atoi(value);
+     }
++    OPT("level-force")
++        p->b_level_force = atobool(value);
+     OPT("bluray-compat")
+         p->b_bluray_compat = atobool(value);
+     OPT("avcintra-class")
+diff --git a/encoder/set.c b/encoder/set.c
+index d1751531..92b3ec17 100644
+--- a/encoder/set.c
++++ b/encoder/set.c
+@@ -829,6 +829,22 @@ int x264_validate_levels( x264_t *h, int verbose )
+     while( l->level_idc != 0 && l->level_idc != h->param.i_level_idc )
+         l++;
+ 
++    if( h->param.b_level_force && verbose )
++    {
++        int frame_ref_bak = h->param.i_frame_reference;
++        while( dpb > l->dpb && h->param.i_frame_reference > 1 )
++        {
++            h->param.i_frame_reference--;
++            h->sps->vui.i_max_dec_frame_buffering =
++            h->sps->i_num_ref_frames = X264_MIN(16, X264_MAX3(h->param.i_frame_reference, 1 + h->sps->vui.i_num_reorder_frames,
++                                                              h->param.i_bframe_pyramid ? 4 : 1 ));
++            h->sps->i_num_ref_frames -= h->param.i_bframe_pyramid == X264_B_PYRAMID_STRICT;
++            dpb = mbs * h->sps->vui.i_max_dec_frame_buffering;
++        }
++        if( frame_ref_bak != h->param.i_frame_reference )
++            x264_log( h, X264_LOG_INFO, "Force ref-frames %d -> %d\n", frame_ref_bak, h->param.i_frame_reference );
++    }
++
+     if( l->frame_size < mbs
+         || l->frame_size*8 < h->sps->i_mb_width * h->sps->i_mb_width
+         || l->frame_size*8 < h->sps->i_mb_height * h->sps->i_mb_height )
+@@ -842,8 +858,23 @@ int x264_validate_levels( x264_t *h, int verbose )
+     if( (val) > (limit) ) \
+         ERROR( name " (%"PRId64") > level limit (%d)\n", (int64_t)(val), (limit) );
+ 
+-    CHECK( "VBV bitrate", (l->bitrate * cbp_factor) / 4, h->param.rc.i_vbv_max_bitrate );
+-    CHECK( "VBV buffer", (l->cpb * cbp_factor) / 4, h->param.rc.i_vbv_buffer_size );
++    int vbv_br_limit = (l->bitrate * cbp_factor) / 4;
++    int vbv_buf_limit = (l->cpb * cbp_factor) / 4;
++    if( h->param.b_level_force && verbose )
++    {
++        if( h->param.rc.i_vbv_max_bitrate > vbv_br_limit )
++        {
++            x264_log( h, X264_LOG_INFO, "Force VBV-bitrate %d -> %d\n", h->param.rc.i_vbv_max_bitrate, vbv_br_limit );
++            h->param.rc.i_vbv_max_bitrate = vbv_br_limit;
++        }
++        if( h->param.rc.i_vbv_buffer_size > vbv_buf_limit )
++        {
++            x264_log( h, X264_LOG_INFO, "Force VBV-buffer %d -> %d\n", h->param.rc.i_vbv_buffer_size, vbv_buf_limit );
++            h->param.rc.i_vbv_buffer_size = vbv_buf_limit;
++        }
++    }
++    CHECK( "VBV bitrate", vbv_br_limit, h->param.rc.i_vbv_max_bitrate );
++    CHECK( "VBV buffer", vbv_buf_limit, h->param.rc.i_vbv_buffer_size );
+     CHECK( "MV range", l->mv_range, h->param.analyse.i_mv_range );
+     CHECK( "interlaced", !l->frame_only, h->param.b_interlaced );
+     CHECK( "fake interlaced", !l->frame_only, h->param.b_fake_interlaced );
+diff --git a/x264.c b/x264.c
+index 54dcfc4e..1e7b5372 100644
+--- a/x264.c
++++ b/x264.c
+@@ -915,6 +915,7 @@ static void help( x264_param_t *defaults, int longhelp )
+     H0( "      --seek <integer>        First frame to encode\n" );
+     H0( "      --frames <integer>      Maximum number of frames to encode\n" );
+     H0( "      --level <string>        Specify level (as defined by Annex A)\n" );
++    H1( "      --level-force           Force params to specifyed level\n" );
+     H1( "      --bluray-compat         Enable compatibility hacks for Blu-ray support\n" );
+     H1( "      --avcintra-class <integer> Use compatibility hacks for AVC-Intra class\n"
+         "                                  - %s\n", stringify_names( buf, x264_avcintra_class_names ) );
+@@ -1090,6 +1091,7 @@ static struct option long_options[] =
+     { "deadzone-inter", required_argument, NULL, 0 },
+     { "deadzone-intra", required_argument, NULL, 0 },
+     { "level",       required_argument, NULL, 0 },
++    { "level-force",       no_argument, NULL, 0 },
+     { "ratetol",     required_argument, NULL, 0 },
+     { "vbv-maxrate", required_argument, NULL, 0 },
+     { "vbv-bufsize", required_argument, NULL, 0 },
+diff --git a/x264.h b/x264.h
+index dec9331e..5325a2f2 100644
+--- a/x264.h
++++ b/x264.h
+@@ -318,6 +318,7 @@ typedef struct x264_param_t
+     int         i_csp;         /* CSP of encoded bitstream */
+     int         i_bitdepth;
+     int         i_level_idc;
++    int         b_level_force; /* force ref etc. for level */
+     int         i_frame_total; /* number of frames to encode if known, else 0 */
+ 
+     /* NAL HRD
