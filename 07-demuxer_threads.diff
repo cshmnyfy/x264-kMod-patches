@@ -1,5 +1,5 @@
 diff --git a/input/ffms.c b/input/ffms.c
-index 19b1fd7e..cf1d1b38 100644
+index f34f85d0..54b0edc0 100644
 --- a/input/ffms.c
 +++ b/input/ffms.c
 @@ -118,7 +118,7 @@ static int open_file( char *psz_filename, hnd_t *p_handle, video_info_t *info, c
@@ -12,7 +12,7 @@ index 19b1fd7e..cf1d1b38 100644
  
      FAIL_IF_ERROR( trackno < 0, "could not find video track\n" );
 diff --git a/input/input.h b/input/input.h
-index fa1a58fc..045ddd88 100644
+index 70b66545..c7e2e3b3 100644
 --- a/input/input.h
 +++ b/input/input.h
 @@ -48,6 +48,7 @@ typedef struct
@@ -24,7 +24,7 @@ index fa1a58fc..045ddd88 100644
  
  /* properties of the source given by the demuxer */
 diff --git a/input/lavf.c b/input/lavf.c
-index a304b536..2840c9f2 100644
+index b5bd0b81..f7b4fff4 100644
 --- a/input/lavf.c
 +++ b/input/lavf.c
 @@ -211,6 +211,7 @@ static int open_file( char *psz_filename, hnd_t *p_handle, video_info_t *info, c
@@ -36,10 +36,10 @@ index a304b536..2840c9f2 100644
                     "could not find decoder for video stream\n" );
  
 diff --git a/x264.c b/x264.c
-index 1be09093..8db1baff 100644
+index b86f6744..5a930d44 100644
 --- a/x264.c
 +++ b/x264.c
-@@ -1002,6 +1002,7 @@ static void help( x264_param_t *defaults, int longhelp )
+@@ -1007,6 +1007,7 @@ static void help( x264_param_t *defaults, int longhelp )
      H1( "      --ssim                  Enable SSIM computation\n" );
      H1( "      --threads <integer>     Force a specific number of threads\n" );
      H2( "      --lookahead-threads <integer> Force a specific number of lookahead threads\n" );
@@ -47,7 +47,7 @@ index 1be09093..8db1baff 100644
      H2( "      --sliced-threads        Low-latency but lower-efficiency threading\n" );
      H2( "      --thread-input          Run Avisynth in its own thread\n" );
      H2( "      --sync-lookahead <integer> Number of buffer frames for threaded lookahead\n" );
-@@ -1062,6 +1063,7 @@ typedef enum
+@@ -1067,6 +1068,7 @@ typedef enum
      OPT_LOG_LEVEL,
      OPT_LOG_FILE,
      OPT_LOG_FILE_LEVEL,
@@ -55,15 +55,15 @@ index 1be09093..8db1baff 100644
      OPT_VIDEO_FILTER,
      OPT_INPUT_FMT,
      OPT_INPUT_RES,
-@@ -1182,6 +1184,7 @@ static struct option long_options[] =
-     { "qpfile",      required_argument, NULL, OPT_QPFILE },
-     { "threads",     required_argument, NULL, 0 },
-     { "lookahead-threads", required_argument, NULL, 0 },
-+    { "demuxer-threads",   required_argument, NULL, OPT_DEMUXER_THREADS },
-     { "sliced-threads",    no_argument, NULL, 0 },
-     { "no-sliced-threads", no_argument, NULL, 0 },
-     { "slice-max-size",    required_argument, NULL, 0 },
-@@ -1560,6 +1563,9 @@ static int parse( int argc, char **argv, x264_param_t *param, cli_opt_t *opt )
+@@ -1187,6 +1189,7 @@ static struct option long_options[] =
+     { "qpfile",               required_argument, NULL, OPT_QPFILE },
+     { "threads",              required_argument, NULL, 0 },
+     { "lookahead-threads",    required_argument, NULL, 0 },
++    { "demuxer-threads",      required_argument, NULL, OPT_DEMUXER_THREADS },
+     { "sliced-threads",       no_argument,       NULL, 0 },
+     { "no-sliced-threads",    no_argument,       NULL, 0 },
+     { "slice-max-size",       required_argument, NULL, 0 },
+@@ -1567,6 +1570,9 @@ static int parse( int argc, char **argv, x264_param_t *param, cli_opt_t *opt )
              case OPT_THREAD_INPUT:
                  b_thread_input = 1;
                  break;
@@ -73,7 +73,7 @@ index 1be09093..8db1baff 100644
              case OPT_QUIET:
                  cli_log_level = param->i_log_level = X264_LOG_NONE;
                  break;
-@@ -1723,6 +1729,7 @@ generic_option:
+@@ -1730,6 +1736,7 @@ generic_option:
      input_opt.seek = opt->i_seek;
      input_opt.progress = opt->b_progress;
      input_opt.output_csp = output_csp;

@@ -1,5 +1,5 @@
 diff --git a/common/base.c b/common/base.c
-index 79d65f1f..6ac32463 100644
+index e8531a72..e4afbeb1 100644
 --- a/common/base.c
 +++ b/common/base.c
 @@ -367,6 +367,7 @@ REALIGN_STACK void x264_param_default( x264_param_t *param )
@@ -20,10 +20,10 @@ index 79d65f1f..6ac32463 100644
          p->b_bluray_compat = atobool(value);
      OPT("avcintra-class")
 diff --git a/encoder/set.c b/encoder/set.c
-index d1751531..92b3ec17 100644
+index fbebb5f4..b86c1594 100644
 --- a/encoder/set.c
 +++ b/encoder/set.c
-@@ -829,6 +829,22 @@ int x264_validate_levels( x264_t *h, int verbose )
+@@ -871,6 +871,22 @@ int x264_validate_levels( x264_t *h, int verbose )
      while( l->level_idc != 0 && l->level_idc != h->param.i_level_idc )
          l++;
  
@@ -46,7 +46,7 @@ index d1751531..92b3ec17 100644
      if( l->frame_size < mbs
          || l->frame_size*8 < h->sps->i_mb_width * h->sps->i_mb_width
          || l->frame_size*8 < h->sps->i_mb_height * h->sps->i_mb_height )
-@@ -842,8 +858,23 @@ int x264_validate_levels( x264_t *h, int verbose )
+@@ -884,8 +900,23 @@ int x264_validate_levels( x264_t *h, int verbose )
      if( (val) > (limit) ) \
          ERROR( name " (%"PRId64") > level limit (%d)\n", (int64_t)(val), (limit) );
  
@@ -73,10 +73,10 @@ index d1751531..92b3ec17 100644
      CHECK( "interlaced", !l->frame_only, h->param.b_interlaced );
      CHECK( "fake interlaced", !l->frame_only, h->param.b_fake_interlaced );
 diff --git a/x264.c b/x264.c
-index 54dcfc4e..1e7b5372 100644
+index 4765973a..8b782987 100644
 --- a/x264.c
 +++ b/x264.c
-@@ -915,6 +915,7 @@ static void help( x264_param_t *defaults, int longhelp )
+@@ -920,6 +920,7 @@ static void help( x264_param_t *defaults, int longhelp )
      H0( "      --seek <integer>        First frame to encode\n" );
      H0( "      --frames <integer>      Maximum number of frames to encode\n" );
      H0( "      --level <string>        Specify level (as defined by Annex A)\n" );
@@ -84,16 +84,16 @@ index 54dcfc4e..1e7b5372 100644
      H1( "      --bluray-compat         Enable compatibility hacks for Blu-ray support\n" );
      H1( "      --avcintra-class <integer> Use compatibility hacks for AVC-Intra class\n"
          "                                  - %s\n", stringify_names( buf, x264_avcintra_class_names ) );
-@@ -1090,6 +1091,7 @@ static struct option long_options[] =
-     { "deadzone-inter", required_argument, NULL, 0 },
-     { "deadzone-intra", required_argument, NULL, 0 },
-     { "level",       required_argument, NULL, 0 },
-+    { "level-force",       no_argument, NULL, 0 },
-     { "ratetol",     required_argument, NULL, 0 },
-     { "vbv-maxrate", required_argument, NULL, 0 },
-     { "vbv-bufsize", required_argument, NULL, 0 },
+@@ -1095,6 +1096,7 @@ static struct option long_options[] =
+     { "deadzone-inter",       required_argument, NULL, 0 },
+     { "deadzone-intra",       required_argument, NULL, 0 },
+     { "level",                required_argument, NULL, 0 },
++    { "level-force",          no_argument,       NULL, 0 },
+     { "ratetol",              required_argument, NULL, 0 },
+     { "vbv-maxrate",          required_argument, NULL, 0 },
+     { "vbv-bufsize",          required_argument, NULL, 0 },
 diff --git a/x264.h b/x264.h
-index dec9331e..5325a2f2 100644
+index d9644b6f..34ef1a3e 100644
 --- a/x264.h
 +++ b/x264.h
 @@ -318,6 +318,7 @@ typedef struct x264_param_t

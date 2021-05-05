@@ -1,8 +1,8 @@
 diff --git a/x264.c b/x264.c
-index 7972e831..7b016871 100644
+index 5fd2f332..602d99e6 100644
 --- a/x264.c
 +++ b/x264.c
-@@ -1864,10 +1864,10 @@ static int64_t print_status( int64_t i_start, int64_t i_previous, int i_frame, i
+@@ -1871,10 +1871,10 @@ static int64_t print_status( int64_t i_start, int64_t i_previous, int i_frame, i
      if( print_progress_header )
      {
          if( i_frame_total )
@@ -16,7 +16,7 @@ index 7972e831..7b016871 100644
          print_progress_header = 0;
      }
  
-@@ -1882,13 +1882,17 @@ static int64_t print_status( int64_t i_start, int64_t i_previous, int i_frame, i
+@@ -1889,13 +1889,17 @@ static int64_t print_status( int64_t i_start, int64_t i_previous, int i_frame, i
      if( i_frame_total )
      {
          int eta = i_elapsed * (i_frame_total - i_frame) / ((int64_t)i_frame * 1000000);

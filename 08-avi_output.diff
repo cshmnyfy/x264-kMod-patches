@@ -1,5 +1,5 @@
 diff --git a/Makefile b/Makefile
-index 6b2cfad7..a539eb53 100644
+index 7c6022ff..a14fb0d5 100644
 --- a/Makefile
 +++ b/Makefile
 @@ -87,6 +87,10 @@ ifneq ($(findstring HAVE_LSMASH 1, $(CONFIG)),)
@@ -14,7 +14,7 @@ index 6b2cfad7..a539eb53 100644
  
  # MMX/SSE optims
 diff --git a/configure b/configure
-index 10aa2fd4..a6b7ba01 100755
+index b4426d62..fc45bdbe 100755
 --- a/configure
 +++ b/configure
 @@ -56,6 +56,7 @@ External library support:
@@ -25,7 +25,7 @@ index 10aa2fd4..a6b7ba01 100755
  
  EOF
  exit 1
-@@ -374,6 +375,7 @@ ffms="auto"
+@@ -375,6 +376,7 @@ ffms="auto"
  gpac="auto"
  lsmash="auto"
  mp4="no"
@@ -33,7 +33,7 @@ index 10aa2fd4..a6b7ba01 100755
  gpl="yes"
  thread="auto"
  swscale="auto"
-@@ -410,7 +412,7 @@ NL="
+@@ -411,7 +413,7 @@ NL="
  # list of all preprocessor HAVE values we can define
  CONFIG_HAVE="MALLOC_H ALTIVEC ALTIVEC_H MMX ARMV6 ARMV6T2 NEON AARCH64 BEOSTHREAD POSIXTHREAD WIN32THREAD THREAD LOG2F SWSCALE \
               LAVF FFMS GPAC AVS GPL VECTOREXT INTERLACED CPU_COUNT OPENCL THP LSMASH X86_INLINE_ASM AS_FUNC INTEL_DISPATCHER \
@@ -42,7 +42,7 @@ index 10aa2fd4..a6b7ba01 100755
  
  # parse options
  
-@@ -474,6 +476,9 @@ for opt do
+@@ -475,6 +477,9 @@ for opt do
          --disable-lsmash)
              lsmash="no"
              ;;
@@ -52,7 +52,7 @@ index 10aa2fd4..a6b7ba01 100755
          --disable-gpl)
              gpl="no"
              ;;
-@@ -1136,6 +1141,7 @@ if [ "$cli" = "no" ] ; then
+@@ -1142,6 +1147,7 @@ if [ "$cli" = "no" ] ; then
      lsmash="no"
      mp4="no"
      swscale="no"
@@ -60,7 +60,7 @@ index 10aa2fd4..a6b7ba01 100755
  fi
  
  if [ "$swscale" = "auto" ] ; then
-@@ -1271,6 +1277,32 @@ elif [ "$gpac" = "yes" ] ; then
+@@ -1295,6 +1301,32 @@ elif [ "$gpac" = "yes" ] ; then
      define HAVE_GPAC
  fi
  
@@ -93,7 +93,7 @@ index 10aa2fd4..a6b7ba01 100755
  if [ "$avs" = "auto" ] ; then
      avs="no"
      # cygwin can use avisynth if it can use LoadLibrary
-@@ -1631,6 +1663,7 @@ avs:            $avs
+@@ -1655,6 +1687,7 @@ avs:            $avs
  lavf:           $lavf
  ffms:           $ffms
  mp4:            $mp4
@@ -364,7 +364,7 @@ index 00000000..edd7836f
 +
 +const cli_output_t avi_output = { open_file, set_param, write_headers, write_frame, close_file };
 diff --git a/output/output.h b/output/output.h
-index a111e4fe..4d00d5c7 100644
+index 1763312c..6f1dcaab 100644
 --- a/output/output.h
 +++ b/output/output.h
 @@ -47,5 +47,6 @@ extern const cli_output_t raw_output;
@@ -375,7 +375,7 @@ index a111e4fe..4d00d5c7 100644
  
  #endif
 diff --git a/x264.c b/x264.c
-index 8db1baff..2dc2322d 100644
+index 5a930d44..ad2611d4 100644
 --- a/x264.c
 +++ b/x264.c
 @@ -203,6 +203,9 @@ const char * const x264_muxer_names[] =
@@ -388,7 +388,7 @@ index 8db1baff..2dc2322d 100644
  #endif
      0
  };
-@@ -556,6 +559,7 @@ static void help( x264_param_t *defaults, int longhelp )
+@@ -557,6 +560,7 @@ static void help( x264_param_t *defaults, int longhelp )
          " .mkv -> Matroska\n"
          " .flv -> Flash Video\n"
          " .mp4 -> MP4 if compiled with GPAC or L-SMASH support (%s)\n"
@@ -396,7 +396,7 @@ index 8db1baff..2dc2322d 100644
          "Output bit depth: %s\n."
          "\n"
          "Options:\n"
-@@ -587,6 +591,11 @@ static void help( x264_param_t *defaults, int longhelp )
+@@ -588,6 +592,11 @@ static void help( x264_param_t *defaults, int longhelp )
  #else
          "no",
  #endif
@@ -408,7 +408,7 @@ index 8db1baff..2dc2322d 100644
  #if HAVE_BITDEPTH8 && HAVE_BITDEPTH10
          "8/10"
  #elif HAVE_BITDEPTH8
-@@ -1287,6 +1296,23 @@ static int select_output( const char *muxer, char *filename, x264_param_t *param
+@@ -1294,6 +1303,23 @@ static int select_output( const char *muxer, char *filename, x264_param_t *param
          param->b_annexb = 0;
          param->b_repeat_headers = 0;
      }

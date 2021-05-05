@@ -1,8 +1,8 @@
 diff --git a/common/base.c b/common/base.c
-index 6ac32463..0e882e4b 100644
+index e4afbeb1..0323f301 100644
 --- a/common/base.c
 +++ b/common/base.c
-@@ -1311,6 +1311,8 @@ REALIGN_STACK int x264_param_parse( x264_param_t *p, const char *name, const cha
+@@ -1337,6 +1337,8 @@ REALIGN_STACK int x264_param_parse( x264_param_t *p, const char *name, const cha
          p->rc.i_aq_mode = atoi(value);
      OPT("aq-strength")
          p->rc.f_aq_strength = atof(value);
@@ -11,7 +11,7 @@ index 6ac32463..0e882e4b 100644
      OPT("pass")
      {
          int pass = x264_clip3( atoi(value), 0, 3 );
-@@ -1419,7 +1421,10 @@ char *x264_param2string( x264_param_t *p, int b_res )
+@@ -1445,7 +1447,10 @@ char *x264_param2string( x264_param_t *p, int b_res )
      s += sprintf( s, " subme=%d", p->analyse.i_subpel_refine );
      s += sprintf( s, " psy=%d", p->analyse.b_psy );
      if( p->analyse.b_psy )
@@ -23,10 +23,10 @@ index 6ac32463..0e882e4b 100644
      s += sprintf( s, " me_range=%d", p->analyse.i_me_range );
      s += sprintf( s, " chroma_me=%d", p->analyse.b_chroma_me );
 diff --git a/encoder/encoder.c b/encoder/encoder.c
-index 8cb73507..14cb9a91 100644
+index 04b8459f..f96751fc 100644
 --- a/encoder/encoder.c
 +++ b/encoder/encoder.c
-@@ -1154,10 +1154,15 @@ static int validate_parameters( x264_t *h, int b_open )
+@@ -1189,10 +1189,15 @@ static int validate_parameters( x264_t *h, int b_open )
              x264_log( h, X264_LOG_WARNING, "--tune %s should be used if attempting to benchmark %s!\n", s, s );
      }
  
@@ -43,10 +43,10 @@ index 8cb73507..14cb9a91 100644
      h->param.analyse.f_psy_rd = x264_clip3f( h->param.analyse.f_psy_rd, 0, 10 );
      h->param.analyse.f_psy_trellis = x264_clip3f( h->param.analyse.f_psy_trellis, 0, 10 );
 diff --git a/encoder/slicetype.c b/encoder/slicetype.c
-index b59a0d73..1633a2fb 100644
+index 0315ba6b..527287a8 100644
 --- a/encoder/slicetype.c
 +++ b/encoder/slicetype.c
-@@ -460,7 +460,7 @@ void x264_weights_analyse( x264_t *h, x264_frame_t *fenc, x264_frame_t *ref, int
+@@ -459,7 +459,7 @@ void x264_weights_analyse( x264_t *h, x264_frame_t *fenc, x264_frame_t *ref, int
          else
              SET_WEIGHT( weights[plane], 1, minscale, mindenom, minoff );
  
@@ -55,7 +55,7 @@ index b59a0d73..1633a2fb 100644
              fenc->f_weighted_cost_delta[i_delta_index] = (float)minscore / origscore;
      }
  
-@@ -1032,7 +1032,7 @@ static void macroblock_tree_finish( x264_t *h, x264_frame_t *frame, float averag
+@@ -1031,7 +1031,7 @@ static void macroblock_tree_finish( x264_t *h, x264_frame_t *frame, float averag
      int fps_factor = round( CLIP_DURATION(average_duration) / CLIP_DURATION(frame->f_duration) * 256 / MBTREE_PRECISION );
      float weightdelta = 0.0;
      if( ref0_distance && frame->f_weighted_cost_delta[ref0_distance-1] > 0 )
@@ -65,10 +65,10 @@ index b59a0d73..1633a2fb 100644
      /* Allow the strength to be adjusted via qcompress, since the two
       * concepts are very similar. */
 diff --git a/x264.c b/x264.c
-index 1e7b5372..8e76b697 100644
+index 8b782987..158c4e75 100644
 --- a/x264.c
 +++ b/x264.c
-@@ -750,6 +750,8 @@ static void help( x264_param_t *defaults, int longhelp )
+@@ -751,6 +751,8 @@ static void help( x264_param_t *defaults, int longhelp )
          "                                  - 3: Auto-variance AQ with bias to dark scenes\n", defaults->rc.i_aq_mode );
      H1( "      --aq-strength <float>   Reduces blocking and blurring in flat and\n"
          "                              textured areas. [%.1f]\n", defaults->rc.f_aq_strength );
@@ -77,16 +77,16 @@ index 1e7b5372..8e76b697 100644
      H1( "\n" );
      H0( "  -p, --pass <integer>        Enable multipass ratecontrol\n"
          "                                  - 1: First pass, creates stats file\n"
-@@ -1088,6 +1090,7 @@ static struct option long_options[] =
-     { "no-dct-decimate",   no_argument, NULL, 0 },
-     { "aq-strength", required_argument, NULL, 0 },
-     { "aq-mode",     required_argument, NULL, 0 },
-+    { "fade-compensate", required_argument, NULL, 0 },
-     { "deadzone-inter", required_argument, NULL, 0 },
-     { "deadzone-intra", required_argument, NULL, 0 },
-     { "level",       required_argument, NULL, 0 },
+@@ -1093,6 +1095,7 @@ static struct option long_options[] =
+     { "no-dct-decimate",      no_argument,       NULL, 0 },
+     { "aq-strength",          required_argument, NULL, 0 },
+     { "aq-mode",              required_argument, NULL, 0 },
++    { "fade-compensate",      required_argument, NULL, 0 },
+     { "deadzone-inter",       required_argument, NULL, 0 },
+     { "deadzone-intra",       required_argument, NULL, 0 },
+     { "level",                required_argument, NULL, 0 },
 diff --git a/x264.h b/x264.h
-index 5325a2f2..a79decf0 100644
+index 34ef1a3e..398b9bf9 100644
 --- a/x264.h
 +++ b/x264.h
 @@ -455,6 +455,7 @@ typedef struct x264_param_t

@@ -1,8 +1,8 @@
 diff --git a/x264.c b/x264.c
-index 8e76b697..7972e831 100644
+index 158c4e75..5fd2f332 100644
 --- a/x264.c
 +++ b/x264.c
-@@ -1855,11 +1855,24 @@ static int encode_frame( x264_t *h, hnd_t hout, x264_picture_t *pic, int64_t *la
+@@ -1862,11 +1862,24 @@ static int encode_frame( x264_t *h, hnd_t hout, x264_picture_t *pic, int64_t *la
  
  static int64_t print_status( int64_t i_start, int64_t i_previous, int i_frame, int i_frame_total, int64_t i_file, x264_param_t *param, int64_t last_ts )
  {
@@ -27,7 +27,7 @@ index 8e76b697..7972e831 100644
      double fps = i_elapsed > 0 ? i_frame * 1000000. / i_elapsed : 0;
      double bitrate;
      if( last_ts )
-@@ -1869,12 +1882,13 @@ static int64_t print_status( int64_t i_start, int64_t i_previous, int i_frame, i
+@@ -1876,12 +1889,13 @@ static int64_t print_status( int64_t i_start, int64_t i_previous, int i_frame, i
      if( i_frame_total )
      {
          int eta = i_elapsed * (i_frame_total - i_frame) / ((int64_t)i_frame * 1000000);
@@ -44,7 +44,7 @@ index 8e76b697..7972e831 100644
      fprintf( stderr, "%s  \r", buf+5 );
      x264_cli_set_console_title( buf );
      fflush( stderr ); // needed in windows
-@@ -2061,8 +2075,11 @@ fail:
+@@ -2068,8 +2082,11 @@ fail:
  
      i_end = x264_mdate();
      /* Erase progress indicator before printing encoding stats. */
@@ -58,7 +58,7 @@ index 8e76b697..7972e831 100644
      if( h )
          x264_encoder_close( h );
      fprintf( stderr, "\n" );
-@@ -2077,9 +2094,11 @@ fail:
+@@ -2084,9 +2101,11 @@ fail:
      {
          double fps = (double)i_frame_output * (double)1000000 /
                       (double)( i_end - i_start );

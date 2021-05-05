@@ -1,8 +1,8 @@
 diff --git a/common/base.c b/common/base.c
-index 6c503732..79d65f1f 100644
+index 5b35a2e3..e8531a72 100644
 --- a/common/base.c
 +++ b/common/base.c
-@@ -1473,7 +1473,7 @@ char *x264_param2string( x264_param_t *p, int b_res )
+@@ -1499,7 +1499,7 @@ char *x264_param2string( x264_param_t *p, int b_res )
      if( p->rc.i_rc_method == X264_RC_ABR || p->rc.i_rc_method == X264_RC_CRF )
      {
          if( p->rc.i_rc_method == X264_RC_CRF )
@@ -12,10 +12,10 @@ index 6c503732..79d65f1f 100644
              s += sprintf( s, " bitrate=%d ratetol=%.1f",
                            p->rc.i_bitrate, p->rc.f_rate_tolerance );
 diff --git a/encoder/encoder.c b/encoder/encoder.c
-index 356332a9..8cb73507 100644
+index b946cddf..04b8459f 100644
 --- a/encoder/encoder.c
 +++ b/encoder/encoder.c
-@@ -1794,6 +1794,13 @@ x264_t *x264_encoder_open( x264_param_t *param )
+@@ -1833,6 +1833,13 @@ x264_t *x264_encoder_open( x264_param_t *param, void *api )
      x264_log( h, X264_LOG_INFO, "profile %s, level %s, %s, %d-bit\n",
                profile, level, subsampling[CHROMA_FORMAT], BIT_DEPTH );
  
